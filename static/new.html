@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8" /><title>新闻页面</title></head>
+<body>
+<h1>新闻列表</h1>
+<div id="newsList">加载中...</div>
+<button id="logoutBtn">退出登录</button>
+
+<script>
+const newsList = document.getElementById('newsList');
+const token = localStorage.getItem('access_token');
+
+if (!token) {
+  alert('请先登录');
+  window.location.href = '/'; // 回登录页
+} else {
+  fetch('/api/news', {
+    headers: {
+      'Authorization': 'Bearer ' + token
+    }
+  })
+  .then(res => {
+    if (res.status === 401) {
+      alert('登录失效，请重新登录');
+      localStorage.removeItem('access_token');
+      window.location.href = '/';
+      return;
+    }
+    return res.json();
+  })
+  .then(data => {
+    if (!data) return;
+    newsList.innerHTML = '';
+    data.forEach(item => {
+      const div = document.createElement('div');
+      div.textContent = item.title || JSON.stringify(item);
+      newsList.appendChild(div);
+    });
+  })
+  .catch(err => {
+    newsList.textContent = '加载新闻失败';
+  });
+}
+
+document.getElementById('logoutBtn').onclick = () => {
+  localStorage.removeItem('access_token');
+  window.location.href = '/';
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+CREATE DATABASE inews_db;
